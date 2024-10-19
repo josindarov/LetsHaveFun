@@ -1,50 +1,63 @@
 services:
 
-  nginx:
-    image: nginx:1.17-alpine
-    container_name: nginx-server
-    restart: unless-stopped
-    ports:
-      - 8080:80
-    volumes:
-      # Re-use local composer cache via host-volume
-      - ~/.composer-docker/cache:/root/.composer/cache:delegated
-      # Mount source-code for development
-      - ./:/var/www/html
-      # Mount config for development
-      - ./docker/nginx:/etc/nginx/conf.d:cached
+    nginx:
+        image: nginx:1.17-alpine
+        container_name: nginx-server
+        restart: unless-stopped
+        ports:
+            - 8080:80
+        volumes:
+            # Re-use local composer cache via host-volume
+            - ~/.composer-docker/cache:/root/.composer/cache:delegated
+            # Mount source-code for development
+            - ./:/var/www/html
+            # Mount config for development
+            - ./docker/nginx:/etc/nginx/conf.d:cached
 
-  php-fpm:
-    build: docker/php-fpm
-    restart: unless-stopped
-    container_name: php-image
-    ports:
-      - 9000:9000
-    volumes:
-      - ./:/var/www/html
-    working_dir: /var/www/html/
+    php-fpm:
+        build: docker/php-fpm
+        restart: unless-stopped
+        container_name: php-image
+        ports:
+            - 9000:9000
+        volumes:
+            - ./:/var/www/html
+        working_dir: /var/www/html/
 
-  db:
-    image: mysql:5.7
-    restart: unless-stopped
-    ports:
-      - 33061:3306
-    volumes:
-      - ./docker/dump:/docker-entrypoint-initdb.d
-      - ./docker/storage/mysql:/var/lib/mysql
-    environment:
-        MYSQL_DATABASE: 'LetsHaveFunDB'
-        MYSQL_ROOT_USER: 'root'
-        MYSQL_ALLOW_EMPTY_PASSWORD: "true"
-        MYSQL_PASSWORD:
-        MYSQL_ROOT_PASSWORD:
+    db:
+        image: mysql:5.7
+        restart: unless-stopped
+        ports:
+            - 33061:3306
+        volumes:
+            - ./docker/dump:/docker-entrypoint-initdb.d
+            - ./docker/storage/mysql:/var/lib/mysql
+        environment:
+            MYSQL_DATABASE: 'LetsHaveFunDB'
+            MYSQL_ROOT_USER: 'root'
+            MYSQL_ALLOW_EMPTY_PASSWORD: "true"
+            MYSQL_PASSWORD:
+            MYSQL_ROOT_PASSWORD:
 
-  node:
-    image: node:22-alpine3.19
-    restart: unless-stopped
-    volumes:
-      - ./:/var/www/html/
-    ports:
-        - 8081:5174
-    tty: true
-    working_dir: /var/www/html/
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        container_name: phpmyadmin-img
+        restart: unless-stopped
+        environment:
+            PMA_ARBITRARY: 1
+            MYSQL_ROOT_PASSWORD: 'password'
+            MYSQL_ALLOW_EMPTY_PASSWORD: 'true'
+        ports:
+            - 8082:80
+        depends_on:
+            - db
+
+    node:
+        image: node:22-alpine3.19
+        restart: unless-stopped
+        volumes:
+            - ./:/var/www/html/
+        ports:
+            - 8081:5174
+        tty: true
+        working_dir: /var/www/html/
