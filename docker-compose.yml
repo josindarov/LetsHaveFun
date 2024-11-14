@@ -58,6 +58,7 @@ services:
         volumes:
             - ./:/var/www/html/
         ports:
-            - 8081:5174
+            - "5174:5174"
         tty: true
         working_dir: /var/www/html/
+

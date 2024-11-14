@@ -2,16 +2,16 @@ de-php:
 	docker exec -it example-php bash
 
 de-node:
-	docker compose exec node sh
+	docker-compose exec node sh
 
 du:
-	docker compose up -d
+	docker-compose up -d
 
 dd:
-	docker compose down
+	docker-compose down
 
 dr:
-	docker compose down
+	docker-compose down
 	sudo rm -rf docker/storage/mysql
 
 db:
